@@ -16,7 +16,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+      # Comments post as kinu-pr-review[bot] instead of github-actions[bot].
+      - uses: actions/create-github-app-token@v3
+        id: app
+        with:
+          app-id: ${{ secrets.PR_REVIEW_APP_ID }}
+          private-key: ${{ secrets.PR_REVIEW_APP_PRIVATE_KEY }}
       - uses: kinu01/claude-pr-review-skill@main
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ steps.app.outputs.token }}
           model: claude-sonnet-5-5
