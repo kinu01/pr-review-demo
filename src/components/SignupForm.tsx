@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-type Props = { onSubmit: (email: string) => Promise<void> };
+type Props = { onSubmit: (email: string) => Promise<void>; defaults: { email: string } };
 
-export function SignupForm({ onSubmit }: Props) {
+export function SignupForm({ onSubmit, defaults }: Props) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [touched, setTouched] = useState({ email: false });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  useEffect(() => {
+    setEmail(defaults.email);
+    setTouched({ ...touched });
+  }, [defaults, touched]);
+
+  async function handleSubmit() {
     try {
       await onSubmit(email);
     } catch {
@@ -16,21 +21,16 @@ export function SignupForm({ onSubmit }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="email">Email</label>
+    <div className="signup">
       <input
-        id="email"
-        type="email"
+        placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        aria-describedby={error ? 'email-error' : undefined}
+        style={{ borderColor: error ? 'red' : '#ccc' }}
       />
-      {error && (
-        <p id="email-error" role="alert">
-          {error}
-        </p>
-      )}
-      <button type="submit">Sign up</button>
-    </form>
+      <div className="btn" onClick={handleSubmit}>
+        Sign up
+      </div>
+    </div>
   );
 }
